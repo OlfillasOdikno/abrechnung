@@ -34,6 +34,7 @@ class TransactionDetails:
     currency_symbol: str
     currency_conversion_rate: float
     billed_at: date
+    repeat: str
     tags: list[str]
     deleted: bool
 

@@ -8,6 +8,7 @@ import {
 
 export interface BackendTransactionDetails {
     billed_at: string;
+    repeat: string;
     currency_symbol: string;
     currency_conversion_rate: number;
     value: number;
@@ -82,6 +83,7 @@ export const backendTransactionToTransaction = (transaction: BackendTransaction)
         return {
             deleted: details.deleted,
             billedAt: details.billed_at,
+            repeat: details.repeat,
             value: details.value,
             currencySymbol: details.currency_symbol,
             currencyConversionRate: details.currency_conversion_rate,

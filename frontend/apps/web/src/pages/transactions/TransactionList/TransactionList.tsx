@@ -169,12 +169,8 @@ export const TransactionList: React.FC<Props> = ({ groupId }) => {
                     {transactions.length === 0 ? (
                         <Alert severity="info">No Transactions</Alert>
                     ) : (
-                        transactions.map((transaction) => (
-                            <TransactionListItem
-                                key={transaction.id}
-                                groupId={groupId}
-                                transactionId={transaction.id}
-                            />
+                        transactions.map((transaction, idx) => (
+                            <TransactionListItem key={idx} groupId={groupId} transaction={transaction} />
                         ))
                     )}
                 </List>

@@ -431,6 +431,7 @@ export const createTransaction = createAsyncThunk<
         currencyConversionRate: 1.0,
         currencySymbol: "€",
         billedAt: toISODateString(new Date()),
+        repeat: "",
         creditorShares: {},
         debitorShares: {},
         tags: [],

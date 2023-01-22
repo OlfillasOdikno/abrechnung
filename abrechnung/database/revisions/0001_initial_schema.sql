@@ -600,6 +600,8 @@ create table if not exists transaction_history (
 
     billed_at                date             not null,
 
+    repeat                   text             not null default '',
+
     description              text             not null default '',
 
     -- deleted can be set to true at any time
@@ -757,6 +759,7 @@ create or replace view pending_transaction_history as
         history.description              as description,
         history.value                    as value,
         history.billed_at                as billed_at,
+        history.repeat                   as repeat,
         r.user_id                        as last_changed_by,
         history.currency_symbol          as currency_symbol,
         history.currency_conversion_rate as currency_conversion_rate,
@@ -781,6 +784,7 @@ create or replace view pending_transaction_revisions as
         history.description              as description,
         history.value                    as value,
         history.billed_at                as billed_at,
+        history.repeat                   as repeat,
         history.last_changed_by          as last_changed_by,
         history.currency_symbol          as currency_symbol,
         history.currency_conversion_rate as currency_conversion_rate,
@@ -805,6 +809,7 @@ create or replace view committed_transaction_history as
         first_value(history.deleted) over wnd                  as deleted,
         first_value(history.description) over wnd              as description,
         first_value(history.billed_at) over wnd                as billed_at,
+        first_value(history.repeat) over wnd                   as repeat,
         first_value(history.value) over wnd                    as value,
         first_value(r.user_id) over wnd                        as last_changed_by,
         first_value(history.currency_symbol) over wnd          as currency_symbol,
@@ -828,6 +833,7 @@ create or replace view committed_transaction_state as
         history.description              as description,
         history.value                    as value,
         history.billed_at                as billed_at,
+        history.repeat                   as repeat,
         history.last_changed_by          as last_changed_by,
         history.currency_symbol          as currency_symbol,
         history.currency_conversion_rate as currency_conversion_rate,

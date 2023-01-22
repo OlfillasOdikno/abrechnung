@@ -10,6 +10,7 @@ const BaseTransactionValidator = z.object({
     billedAt: z
         .string({ required_error: "Billed at is required" })
         .regex(/\d{4}-\d{2}-\d{2}/, "A valid date is required"),
+    repeat: z.string({ required_error: "repeat is required" }),
     description: z.string().optional(),
     currencySymbol: z.string({ required_error: "Currency is required" }).min(1, "Currency is required"),
     currencyConversionRate: z
@@ -102,6 +103,7 @@ interface CommonTransactionMetadata {
     currencySymbol: string;
     currencyConversionRate: number;
     billedAt: string;
+    repeat: string;
     tags: string[];
     creditorShares: TransactionShare;
     debitorShares: TransactionShare;

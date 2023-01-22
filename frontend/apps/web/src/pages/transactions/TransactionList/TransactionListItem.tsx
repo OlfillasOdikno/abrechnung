@@ -1,23 +1,21 @@
 import { selectAccountIdToNameMap, selectTransactionById } from "@abrechnung/redux";
+import { Transaction } from "@abrechnung/types";
 import { HelpOutline } from "@mui/icons-material";
 import { Chip, Divider, ListItemAvatar, ListItemText, Tooltip, Typography } from "@mui/material";
 import { DateTime } from "luxon";
 import React from "react";
 import { PurchaseIcon, TransferIcon } from "../../../components/style/AbrechnungIcons";
 import ListItemLink from "../../../components/style/ListItemLink";
-import { selectAccountSlice, selectTransactionSlice, useAppSelector } from "../../../store";
+import { selectAccountSlice, useAppSelector } from "../../../store";
 
 interface Props {
     groupId: number;
-    transactionId: number;
+    transaction: Transaction;
     style?: React.CSSProperties;
 }
 
-export const TransactionListItem: React.FC<Props> = ({ groupId, transactionId, style }) => {
+export const TransactionListItem: React.FC<Props> = ({ groupId, transaction, style }) => {
     const accounts = useAppSelector((state) => selectAccountIdToNameMap({ state: selectAccountSlice(state), groupId }));
-    const transaction = useAppSelector((state) =>
-        selectTransactionById({ state: selectTransactionSlice(state), groupId, transactionId })
-    );
     if (transaction === undefined) {
         // TODO: HACKY WORKAROUND
         // when switching between groups which are already loaded into the redux store we will land on the transaction list page
@@ -40,7 +38,7 @@ export const TransactionListItem: React.FC<Props> = ({ groupId, transactionId, s
 
     return (
         <>
-            <ListItemLink to={`/groups/${groupId}/transactions/${transactionId}`} style={style}>
+            <ListItemLink to={`/groups/${groupId}/transactions/${transaction.id}`} style={style}>
                 <ListItemAvatar sx={{ minWidth: { xs: "40px", md: "56px" } }}>
                     {transaction.type === "purchase" ? (
                         <Tooltip title="Purchase">

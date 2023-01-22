@@ -10,9 +10,17 @@ interface Props {
     disabled: boolean;
     helperText?: React.ReactNode;
     error?: boolean;
+    label?: string;
 }
 
-export const DateInput: React.FC<Props> = ({ value, onChange, helperText, error, disabled = false }) => {
+export const DateInput: React.FC<Props> = ({
+    value,
+    onChange,
+    helperText,
+    error,
+    disabled = false,
+    label = "Date",
+}) => {
     const handleChange = (value: DateTime) => {
         if (value.toISODate()) {
             onChange(value.toISODate());
@@ -22,7 +30,7 @@ export const DateInput: React.FC<Props> = ({ value, onChange, helperText, error,
     if (disabled) {
         return (
             <DisabledTextField
-                label="Date"
+                label={label}
                 variant="standard"
                 fullWidth
                 value={DateTime.fromISO(value).toISODate()}
@@ -33,7 +41,7 @@ export const DateInput: React.FC<Props> = ({ value, onChange, helperText, error,
 
     return (
         <DatePicker
-            label="Date"
+            label={label}
             inputFormat="yyyy-MM-dd"
             value={DateTime.fromISO(value)}
             onChange={handleChange}

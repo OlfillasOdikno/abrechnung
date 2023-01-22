@@ -34,6 +34,7 @@ class RawTransaction:
     currency_symbol: str
     currency_conversion_rate: float
     billed_at: date
+    repeat: str
     deleted: bool
     creditor_shares: dict[int, float]
     debitor_shares: dict[int, float]
@@ -88,6 +89,7 @@ class TransactionService(Application):
             currency_conversion_rate=db_json["currency_conversion_rate"],
             deleted=db_json["deleted"],
             billed_at=date.fromisoformat(db_json["billed_at"]),
+            repeat=db_json["repeat"],
             tags=db_json["tags"],
             creditor_shares={
                 cred["account_id"]: cred["shares"]
@@ -276,6 +278,7 @@ class TransactionService(Application):
         name: str,
         description: Optional[str],
         billed_at: date,
+        repeat: str,
         currency_symbol: str,
         currency_conversion_rate: float,
         value: float,
@@ -299,8 +302,8 @@ class TransactionService(Application):
         )
         await conn.execute(
             "insert into transaction_history "
-            "   (id, revision_id, currency_symbol, currency_conversion_rate, value, name, description, billed_at) "
-            "values ($1, $2, $3, $4, $5, $6, $7, $8)",
+            "   (id, revision_id, currency_symbol, currency_conversion_rate, value, name, description, billed_at, repeat) "
+            "values ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
             transaction_id,
             revision_id,
             currency_symbol,
@@ -309,6 +312,7 @@ class TransactionService(Application):
             name,
             description,
             billed_at,
+            repeat,
         )
 
         tag_ids = await _get_or_create_tag_ids(conn=conn, group_id=group_id, tags=tags)
@@ -364,6 +368,7 @@ class TransactionService(Application):
         name: str,
         description: Optional[str],
         billed_at: date,
+        repeat: str,
         currency_symbol: str,
         currency_conversion_rate: float,
         value: float,
@@ -383,6 +388,7 @@ class TransactionService(Application):
                     name=name,
                     description=description,
                     billed_at=billed_at,
+                    repeat=repeat,
                     currency_symbol=currency_symbol,
                     currency_conversion_rate=currency_conversion_rate,
                     tags=tags,
@@ -738,6 +744,7 @@ class TransactionService(Application):
         name: str,
         description: Optional[str],
         billed_at: date,
+        repeat: str,
         currency_symbol: str,
         currency_conversion_rate: float,
         tags: list[str],
@@ -760,17 +767,18 @@ class TransactionService(Application):
         )
         await conn.execute(
             "insert into transaction_history (id, revision_id, currency_symbol, currency_conversion_rate, "
-            "   value, billed_at, name, description)"
-            "values ($1, $2, $3, $4, $5, $6, $7, $8) "
+            "   value, billed_at, repeat, name, description)"
+            "values ($1, $2, $3, $4, $5, $6, $7, $8, $9) "
             "on conflict (id, revision_id) do update "
             "set currency_symbol = $3, currency_conversion_rate = $4, value = $5, "
-            "   billed_at = $6, name = $7, description = $8",
+            "   billed_at = $6, repeat = $7, name = $8, description = $9",
             transaction_id,
             revision_id,
             currency_symbol,
             currency_conversion_rate,
             value,
             billed_at,
+            repeat,
             name,
             description,
         )
@@ -836,6 +844,7 @@ class TransactionService(Application):
         name: str,
         description: Optional[str],
         billed_at: date,
+        repeat: str,
         currency_symbol: str,
         currency_conversion_rate: float,
         tags: list[str],
@@ -854,6 +863,7 @@ class TransactionService(Application):
                     name=name,
                     description=description,
                     billed_at=billed_at,
+                    repeat=repeat,
                     currency_symbol=currency_symbol,
                     currency_conversion_rate=currency_conversion_rate,
                     tags=tags,
@@ -1089,8 +1099,8 @@ class TransactionService(Application):
 
         # copy all existing transaction data into a new history entry
         await conn.execute(
-            "insert into transaction_history (id, revision_id, currency_symbol, currency_conversion_rate, name, description, value, billed_at, deleted)"
-            "select id, $1, currency_symbol, currency_conversion_rate, name, description, value, billed_at, deleted "
+            "insert into transaction_history (id, revision_id, currency_symbol, currency_conversion_rate, name, description, value, billed_at, repeat, deleted)"
+            "select id, $1, currency_symbol, currency_conversion_rate, name, description, value, billed_at, repeat, deleted "
             "from transaction_history where id = $2 and revision_id = $3",
             revision_id,
             transaction_id,
@@ -1131,6 +1141,7 @@ class TransactionService(Application):
                 name=transaction.name,
                 description=transaction.description,
                 billed_at=transaction.billed_at,
+                repeat=transaction.repeat,
                 currency_symbol=transaction.currency_symbol,
                 tags=transaction.tags,
                 currency_conversion_rate=transaction.currency_conversion_rate,
@@ -1148,6 +1159,7 @@ class TransactionService(Application):
             name=transaction.name,
             description=transaction.description,
             billed_at=transaction.billed_at,
+            repeat=transaction.repeat,
             currency_symbol=transaction.currency_symbol,
             tags=transaction.tags,
             currency_conversion_rate=transaction.currency_conversion_rate,

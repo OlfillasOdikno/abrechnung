@@ -6,7 +6,7 @@ import {
     TransactionSortMode,
 } from "@abrechnung/core";
 import { AccountBalanceMap, Transaction } from "@abrechnung/types";
-import { fromISOString } from "@abrechnung/utils";
+import { fromISOString, toISODateString } from "@abrechnung/utils";
 import memoize from "proxy-memoize";
 import {
     selectAccountIdToNameMapInternal,
@@ -19,6 +19,7 @@ import {
     selectTransactionPositionMapInternal,
 } from "./transactions";
 import { IRootState } from "./types";
+import { rrulestr } from "rrule";
 
 const selectAccountBalancesInternal = (args: { state: IRootState; groupId: number }): AccountBalanceMap => {
     const s = performance.now();
@@ -133,7 +134,28 @@ export const selectSortedTransactions = memoize(
             return true;
         };
 
-        const res = transactions.filter(filterFn).sort(compareFunction);
+        const now = new Date();
+
+        const res = transactions
+            .reduce<Transaction[]>((accum, current) => {
+                if (current.repeat !== "") {
+                    const rule = rrulestr(current.repeat, {
+                        dtstart: fromISOString(current.billedAt),
+                    });
+                    rule.options.until =
+                        rule.options.until != null && rule.options.until.getTime() < now.getTime()
+                            ? rule.options.until
+                            : now;
+                    rule.all().forEach((n) => {
+                        accum.push({ ...current, billedAt: toISODateString(n) });
+                    });
+                } else {
+                    accum.push(current);
+                }
+                return accum;
+            }, [])
+            .filter(filterFn)
+            .sort(compareFunction);
         console.log("selectSortedTransactions took " + (performance.now() - s) + " milliseconds.");
         return res;
     },

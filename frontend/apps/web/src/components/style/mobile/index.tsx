@@ -1,5 +1,5 @@
 import { Paper } from "@mui/material";
-import { experimental_sx as sx, styled } from "@mui/system";
+import { unstable_styleFunctionSx as sx, styled } from "@mui/system";
 
 export const MobilePaper = styled(Paper)(({ theme }) =>
     sx({

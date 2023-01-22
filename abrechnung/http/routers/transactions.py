@@ -32,6 +32,7 @@ class TransactionPayload(BaseModel):
     currency_symbol: str
     currency_conversion_rate: float
     billed_at: date
+    repeat: str
     tags: List[str]
     creditor_shares: TransactionShares
     debitor_shares: TransactionShares
@@ -113,6 +114,7 @@ async def create_transaction(
         currency_symbol=payload.currency_symbol,
         currency_conversion_rate=payload.currency_conversion_rate,
         billed_at=payload.billed_at,
+        repeat=payload.repeat,
         tags=payload.tags,
         value=payload.value,
         creditor_shares=payload.creditor_shares,
@@ -165,6 +167,7 @@ async def update_transaction(
         currency_symbol=payload.currency_symbol,
         currency_conversion_rate=payload.currency_conversion_rate,
         billed_at=payload.billed_at,
+        repeat=payload.repeat,
         tags=payload.tags,
         creditor_shares=payload.creditor_shares,
         debitor_shares=payload.debitor_shares,

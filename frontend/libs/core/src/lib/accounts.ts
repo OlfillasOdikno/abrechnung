@@ -7,8 +7,10 @@ import {
     ClearingShares,
     TransactionBalanceEffect,
 } from "@abrechnung/types";
-import { fromISOString } from "@abrechnung/utils";
+import { fromISOString, toISODateString } from "@abrechnung/utils";
 import { computeTransactionBalanceEffect } from "./transactions";
+
+import { rrulestr } from "rrule";
 
 export type AccountSortMode = "lastChanged" | "name" | "description" | "dateInfo";
 
@@ -39,11 +41,11 @@ export const getAccountSortFunc = (sortMode: AccountSortMode, wipAtTop = false) 
             return (a1: Account, a2: Account) =>
                 baseComparer(a1, a2) ||
                 (a1.type === "clearing" &&
-                a2.type === "clearing" &&
-                a1.dateInfo !== "" &&
-                a1.dateInfo != null &&
-                a2.dateInfo !== "" &&
-                a2.dateInfo != null
+                    a2.type === "clearing" &&
+                    a1.dateInfo !== "" &&
+                    a1.dateInfo != null &&
+                    a2.dateInfo !== "" &&
+                    a2.dateInfo != null
                     ? fromISOString(a1.dateInfo).getTime() - fromISOString(a2.dateInfo).getTime()
                     : lastChangeComparer(a1, a2));
     }
@@ -206,18 +208,40 @@ export const computeAccountBalanceHistory = (
     }
 
     const balanceChanges: Omit<BalanceHistoryEntry, "balance">[] = [];
+    const now = new Date();
     for (const transaction of transactions) {
         const balanceEffect = transactionBalanceEffects[transaction.id];
         const a = balanceEffect[accountId];
         if (a) {
-            balanceChanges.push({
-                date: transaction.billedAt,
-                change: a.total,
-                changeOrigin: {
-                    type: "transaction",
-                    id: transaction.id,
-                },
-            });
+            if (transaction.repeat !== "") {
+                const rule = rrulestr(transaction.repeat, {
+                    dtstart: fromISOString(transaction.billedAt),
+                });
+                rule.options.until =
+                    rule.options.until != null && rule.options.until.getTime() < now.getTime()
+                        ? rule.options.until
+                        : now;
+                const all = rule.all();
+                all.forEach((n) => {
+                    balanceChanges.push({
+                        date: toISODateString(n),
+                        change: a.total / all.length,
+                        changeOrigin: {
+                            type: "transaction",
+                            id: transaction.id,
+                        },
+                    });
+                });
+            } else {
+                balanceChanges.push({
+                    date: transaction.billedAt,
+                    change: a.total,
+                    changeOrigin: {
+                        type: "transaction",
+                        id: transaction.id,
+                    },
+                });
+            }
         }
     }
 

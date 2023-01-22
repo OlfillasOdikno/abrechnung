@@ -1,5 +1,6 @@
 import { Transaction, TransactionBalanceEffect, TransactionPosition } from "@abrechnung/types";
 import { fromISOString } from "@abrechnung/utils";
+import { rrulestr } from "rrule";
 
 export type TransactionSortMode = "lastChanged" | "value" | "name" | "description" | "billedAt";
 
@@ -70,15 +71,24 @@ export const computeTransactionBalanceEffect = (
     const totalDebitorShares: number = Object.values(transaction.debitorShares).reduce((acc, curr) => acc + curr, 0);
     const totalCreditorShares: number = Object.values(transaction.creditorShares).reduce((acc, curr) => acc + curr, 0);
 
+    let repeats = 1;
+
+    if (transaction.repeat !== "") {
+        const rule = rrulestr(transaction.repeat);
+        rule.options.dtstart = fromISOString(transaction.billedAt);
+        rule.options.until = new Date();
+        repeats = rule.all().length;
+    }
     Object.entries(transaction.debitorShares).forEach(([accountID, value]) => {
         if (accountBalances[Number(accountID)] !== undefined) {
             accountBalances[Number(accountID)].commonDebitors +=
-                totalDebitorShares > 0 ? (remainingTransactionValue / totalDebitorShares) * value : 0;
+                (totalDebitorShares > 0 ? (remainingTransactionValue / totalDebitorShares) * value : 0) * repeats;
         } else {
             accountBalances[Number(accountID)] = {
                 positions: 0,
                 commonCreditors: 0,
-                commonDebitors: totalDebitorShares > 0 ? (remainingTransactionValue / totalDebitorShares) * value : 0,
+                commonDebitors:
+                    (totalDebitorShares > 0 ? (remainingTransactionValue / totalDebitorShares) * value : 0) * repeats,
                 total: 0,
             };
         }
@@ -86,11 +96,12 @@ export const computeTransactionBalanceEffect = (
     Object.entries(transaction.creditorShares).forEach(([accountID, value]) => {
         if (accountBalances[Number(accountID)] !== undefined) {
             accountBalances[Number(accountID)].commonCreditors +=
-                totalCreditorShares > 0 ? (transaction.value / totalCreditorShares) * value : 0;
+                (totalCreditorShares > 0 ? (transaction.value / totalCreditorShares) * value : 0) * repeats;
         } else {
             accountBalances[Number(accountID)] = {
                 positions: 0,
-                commonCreditors: totalCreditorShares > 0 ? (transaction.value / totalCreditorShares) * value : 0,
+                commonCreditors:
+                    (totalCreditorShares > 0 ? (transaction.value / totalCreditorShares) * value : 0) * repeats,
                 commonDebitors: 0,
                 total: 0,
             };

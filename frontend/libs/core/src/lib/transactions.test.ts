@@ -18,6 +18,7 @@ const generateTransaction = <T extends TransactionType>(
         id: id,
         groupID: 0,
         billedAt: "2022-01-01",
+        repeat: "",
         deleted: false,
         type: type,
         value: value,

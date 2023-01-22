@@ -80,6 +80,7 @@
         "recoil": "^0.7.5",
         "redux-persist": "^6.0.0",
         "regenerator-runtime": "0.13.7",
+        "rrule": "^2.7.1",
         "tslib": "^2.3.0",
         "typeface-roboto": "^1.1.13",
         "uuid": "^9.0.0",

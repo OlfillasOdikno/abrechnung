@@ -116,6 +116,7 @@ class GroupAPITest(HTTPAPITest):
             name="asdf",
             description="asdf",
             billed_at=datetime.now(tz=timezone.utc),
+            repeat="",
             currency_symbol="€",
             currency_conversion_rate=1.0,
             tags=[],

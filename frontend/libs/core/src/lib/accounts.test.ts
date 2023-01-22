@@ -5,6 +5,7 @@ const purchaseTemplate = {
     groupID: 0,
     type: "purchase" as const,
     billedAt: "2022-10-10",
+    repeat: "",
     currencyConversionRate: 1.0,
     currencySymbol: "€",
     name: "foobar",

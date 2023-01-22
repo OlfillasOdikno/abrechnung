@@ -162,6 +162,7 @@ class WebsocketAPITest(BaseTestCase):
                 currency_symbol="€",
                 currency_conversion_rate=1.0,
                 billed_at=date.today(),
+                repeat="",
                 name="asdf",
                 description="asdf",
                 tags=[],

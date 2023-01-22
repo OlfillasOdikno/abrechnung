@@ -7,7 +7,6 @@ from abrechnung.application.groups import GroupService
 from abrechnung.application.transactions import TransactionService
 from .common import BaseTestCase
 
-
 class TransactionLogicTest(BaseTestCase):
     async def asyncSetUp(self) -> None:
         await super().asyncSetUp()
@@ -144,6 +143,7 @@ class TransactionLogicTest(BaseTestCase):
             name="foo",
             description="foo",
             billed_at=datetime.now().date(),
+            repeat="",
             currency_symbol="€",
             currency_conversion_rate=1.0,
             tags=[],

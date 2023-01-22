@@ -5,8 +5,10 @@ import {
     wipTransactionUpdated,
 } from "@abrechnung/redux";
 import { Transaction, TransactionShare, TransactionValidator } from "@abrechnung/types";
-import { Grid, TableCell } from "@mui/material";
+import { fromISOString } from "@abrechnung/utils";
+import { Checkbox, FormControlLabel, Grid, TableCell, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import * as React from "react";
+import { Frequency, RRule, rrulestr } from "rrule";
 import { typeToFlattenedError, z } from "zod";
 import { AccountSelect } from "../../../components/AccountSelect";
 import { DateInput } from "../../../components/DateInput";
@@ -89,7 +91,14 @@ export const TransactionMetadata: React.FC<Props> = ({
             newValue: Partial<
                 Pick<
                     Transaction,
-                    "name" | "description" | "billedAt" | "value" | "creditorShares" | "debitorShares" | "tags"
+                    | "name"
+                    | "description"
+                    | "billedAt"
+                    | "repeat"
+                    | "value"
+                    | "creditorShares"
+                    | "debitorShares"
+                    | "tags"
                 >
             >
         ) => {
@@ -102,6 +111,78 @@ export const TransactionMetadata: React.FC<Props> = ({
         (shares: TransactionShare) => pushChanges({ debitorShares: shares }),
         [pushChanges]
     );
+
+    const [repeatRule, setRepeatRule] = React.useState<RRule>();
+    const [repeatRuleUntil, setRepeatRuleUntil] = React.useState<string>("");
+    const [showRepeated, setShowRepeatedState] = React.useState<boolean>(false);
+    const [showRepeatedAdvanced, setShowRepeatedAdvanced] = React.useState<boolean>(false);
+
+    const setShowRepeated = React.useCallback(
+        (value: boolean) => {
+            setShowRepeatedState(value);
+            if (!value) {
+                pushChanges({ repeat: "" });
+            }
+        },
+        [pushChanges]
+    );
+
+    React.useEffect(() => {
+        if (transaction.repeat && transaction.repeat !== "") {
+            try {
+                setRepeatRule(rrulestr(transaction.repeat, {}));
+            } catch (error) {
+                console.error(error);
+            }
+        } else {
+            setRepeatRule(null);
+        }
+    }, [transaction.repeat]);
+
+    React.useEffect(() => {
+        if (repeatRule && transaction.repeat !== "") {
+            if (repeatRule.options.until) {
+                setRepeatRuleUntil(repeatRule.options.until.toISOString());
+            } else {
+                setRepeatRuleUntil("");
+            }
+            setShowRepeated(true);
+        } else {
+            setRepeatRuleUntil("");
+        }
+    }, [repeatRule, setShowRepeated, transaction.repeat]);
+
+    const setRepeatUntil = (value: string) => {
+        try {
+            const rule = rrulestr(transaction.repeat, {});
+            try {
+                rule.origOptions.until = fromISOString(value);
+            } catch (error) {
+                console.error(error);
+            }
+            pushChanges({ repeat: rule.toString() });
+        } catch (error) {
+            pushChanges({
+                repeat: new RRule({
+                    until: fromISOString(value),
+                }).toString(),
+            });
+        }
+    };
+
+    const handleSetFrequency = (event: React.MouseEvent<HTMLElement>, value: Frequency) => {
+        try {
+            const rule = rrulestr(transaction.repeat, {});
+            rule.origOptions.freq = value;
+            pushChanges({ repeat: rule.toString() });
+        } catch (error) {
+            pushChanges({
+                repeat: new RRule({
+                    freq: value,
+                }).toString(),
+            });
+        }
+    };
 
     return (
         <Grid container>
@@ -154,6 +235,67 @@ export const TransactionMetadata: React.FC<Props> = ({
                     helperText={validationErrors.fieldErrors.billedAt}
                     disabled={!transaction.isWip}
                 />
+                <FormControlLabel
+                    control={<Checkbox name={"show-repeated"} />}
+                    checked={showRepeated}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setShowRepeated(event.target.checked)}
+                    label="Repeated"
+                />
+                {showRepeated ? (
+                    <>
+                        <ToggleButtonGroup
+                            value={repeatRule ? repeatRule.origOptions.freq : undefined}
+                            exclusive
+                            onChange={handleSetFrequency}
+                            aria-label="repeat frequency"
+                        >
+                            <ToggleButton value={Frequency.DAILY} aria-label="daily">
+                                DAILY
+                            </ToggleButton>
+                            <ToggleButton value={Frequency.WEEKLY} aria-label="weekly">
+                                WEEKLY
+                            </ToggleButton>
+                            <ToggleButton value={Frequency.MONTHLY} aria-label="monthly">
+                                MONTHLY
+                            </ToggleButton>
+                            <ToggleButton value={Frequency.YEARLY} aria-label="yearly">
+                                YEARLY
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                        <DateInput
+                            value={repeatRuleUntil}
+                            label="Until"
+                            onChange={(value) => setRepeatUntil(value)}
+                            error={!!validationErrors.fieldErrors.repeat}
+                            helperText={validationErrors.fieldErrors.repeat}
+                            disabled={!transaction.isWip}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name={"show-repeated-advanced"} />}
+                            checked={showRepeatedAdvanced}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                setShowRepeatedAdvanced(event.target.checked)
+                            }
+                            label="Repeated Advanced"
+                        />
+                        {showRepeatedAdvanced ? (
+                            <TextInput
+                                label="Repeat (rfc5545)"
+                                name="repeat"
+                                variant="standard"
+                                margin="dense"
+                                autoFocus
+                                fullWidth
+                                error={!!validationErrors.fieldErrors.repeat}
+                                helperText={validationErrors.fieldErrors.repeat}
+                                onChange={(value) => pushChanges({ repeat: value })}
+                                value={transaction.repeat}
+                                disabled={!transaction.isWip}
+                            />
+                        ) : undefined}
+                    </>
+                ) : undefined}
+
                 {!transaction.isWip && transaction.tags.length === 0 ? null : (
                     <TagSelector
                         margin="dense"
