@@ -65,6 +65,7 @@
         "redux-persist": "^6.0.0",
         "redux-persist-filesystem-storage": "^4.2.0",
         "regenerator-runtime": "0.14.1",
+        "rrule": "^2.8.1",
         "tslib": "^2.6.2",
         "typeface-roboto": "^1.1.13",
         "uuid": "^9.0.1",
@@ -90,6 +91,7 @@
         "@react-native-community/cli": "13.2.0",
         "@react-native-community/cli-platform-android": "12.3.6",
         "@react-native-community/cli-platform-ios": "13.2.0",
+        "@react-native/babel-preset": "0.73.21",
         "@react-native/metro-config": "0.73.5",
         "@svgr/webpack": "^8.1.0",
         "@swc-node/register": "~1.8.0",
@@ -137,7 +139,6 @@
         "ts-jest": "29.1.2",
         "ts-node": "10.9.2",
         "typescript": "5.3.3",
-        "url-loader": "^4.1.1",
-        "@react-native/babel-preset": "0.73.21"
+        "url-loader": "^4.1.1"
     }
 }

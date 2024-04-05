@@ -17,6 +17,7 @@ const BaseTransactionValidator = z.object({
     billed_at: z
         .string({ required_error: "Billed at is required" })
         .regex(/\d{4}-\d{2}-\d{2}/, "A valid date is required"),
+    repeat: z.string({ required_error: "repeat is required" }),
     description: z.string().optional(),
     currency_symbol: z.string({ required_error: "Currency is required" }).min(1, "Currency is required"),
     currency_conversion_rate: z

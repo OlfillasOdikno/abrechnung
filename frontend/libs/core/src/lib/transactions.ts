@@ -1,5 +1,6 @@
 import { Account, Transaction, TransactionBalanceEffect } from "@abrechnung/types";
 import { buildCsv, fromISOString } from "@abrechnung/utils";
+import { rrulestr } from "rrule";
 
 export type TransactionSortMode = "last_changed" | "value" | "name" | "description" | "billed_at";
 
@@ -73,12 +74,13 @@ export const computeTransactionBalanceEffect = (transaction: Transaction): Trans
     Object.entries(transaction.debitor_shares).forEach(([accountID, value]) => {
         if (accountBalances[Number(accountID)] !== undefined) {
             accountBalances[Number(accountID)].commonDebitors +=
-                totaldebitor_shares > 0 ? (remainingTransactionValue / totaldebitor_shares) * value : 0;
+                (totaldebitor_shares > 0 ? (remainingTransactionValue / totaldebitor_shares) * value : 0);
         } else {
             accountBalances[Number(accountID)] = {
                 positions: 0,
                 commonCreditors: 0,
-                commonDebitors: totaldebitor_shares > 0 ? (remainingTransactionValue / totaldebitor_shares) * value : 0,
+                commonDebitors:
+                    (totaldebitor_shares > 0 ? (remainingTransactionValue / totaldebitor_shares) * value : 0),
                 total: 0,
             };
         }
@@ -86,11 +88,12 @@ export const computeTransactionBalanceEffect = (transaction: Transaction): Trans
     Object.entries(transaction.creditor_shares).forEach(([accountID, value]) => {
         if (accountBalances[Number(accountID)] !== undefined) {
             accountBalances[Number(accountID)].commonCreditors +=
-                totalcreditor_shares > 0 ? (transaction.value / totalcreditor_shares) * value : 0;
+                (totalcreditor_shares > 0 ? (transaction.value / totalcreditor_shares) * value : 0);
         } else {
             accountBalances[Number(accountID)] = {
                 positions: 0,
-                commonCreditors: totalcreditor_shares > 0 ? (transaction.value / totalcreditor_shares) * value : 0,
+                commonCreditors:
+                    (totalcreditor_shares > 0 ? (transaction.value / totalcreditor_shares) * value : 0),
                 commonDebitors: 0,
                 total: 0,
             };

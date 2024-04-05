@@ -1,8 +1,7 @@
-/* generated using openapi-typescript-codegen -- do no edit */
+/* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-
 export type Group = {
     id: number;
     name: string;
@@ -13,3 +12,4 @@ export type Group = {
     created_at: string;
     created_by: number;
 };
+

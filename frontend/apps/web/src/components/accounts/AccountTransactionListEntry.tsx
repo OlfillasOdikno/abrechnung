@@ -8,21 +8,20 @@ import { selectGroupSlice, selectTransactionSlice, useAppSelector } from "@/stor
 import { PurchaseIcon, TransferIcon } from "../style/AbrechnungIcons";
 import ListItemLink from "../style/ListItemLink";
 import { useTranslation } from "react-i18next";
+import { Transaction } from "@abrechnung/types";
 
 interface Props {
     groupId: number;
-    transactionId: number;
+    transaction: Transaction;
     accountId: number;
 }
 
-export const AccountTransactionListEntry: React.FC<Props> = ({ groupId, transactionId, accountId }) => {
+export const AccountTransactionListEntry: React.FC<Props> = ({ groupId, transaction, accountId }) => {
     const { t } = useTranslation();
     const balanceEffect = useAppSelector((state) =>
-        selectTransactionBalanceEffect({ state: selectTransactionSlice(state), groupId, transactionId })
+        selectTransactionBalanceEffect({ state: selectTransactionSlice(state), groupId, transactionId: transaction.id })
     );
-    const transaction = useAppSelector((state) =>
-        selectTransactionById({ state: selectTransactionSlice(state), groupId, transactionId })
-    );
+
     const currency_symbol = useAppSelector((state) =>
         selectGroupCurrencySymbol({ state: selectGroupSlice(state), groupId })
     );

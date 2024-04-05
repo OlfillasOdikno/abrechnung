@@ -98,7 +98,7 @@ export const AccountTransactionList: React.FC<Props> = ({ groupId, account }) =>
                             key={`transaction-${entry.id}`}
                             accountId={account.id}
                             groupId={groupId}
-                            transactionId={entry.id}
+                            transaction={entry}
                         />
                     );
                 })}

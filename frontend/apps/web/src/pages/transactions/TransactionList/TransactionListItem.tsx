@@ -8,6 +8,7 @@ import { ListItemLink } from "@/components/style/ListItemLink";
 import { selectAccountSlice, selectTransactionSlice, useAppSelector } from "@/store";
 import { useTranslation } from "react-i18next";
 import { useFormatCurrency } from "@/hooks";
+import { rrulestr } from "rrule";
 
 interface Props {
     groupId: number;
@@ -99,6 +100,13 @@ export const TransactionListItem: React.FC<Props> = ({ groupId, transactionId, s
                                 ),
                             })}
                         </Typography>
+                        <br />
+
+                        {transaction.repeat ? (
+                            <Typography component="span" sx={{ typography: "body2", color: "text.secondary" }}>
+                                repeats: {rrulestr(transaction.repeat).toText()}
+                            </Typography>
+                        ) : undefined}
                     </Typography>
                 </ListItemText>
             </ListItemLink>

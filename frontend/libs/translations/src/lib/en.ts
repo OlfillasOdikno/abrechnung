@@ -24,6 +24,9 @@ const translations = {
         lastChangedWithTime: "last changed: {{datetime}}",
         value: "Value",
         date: "Date",
+        repeated: "Repeated",
+        startDate: "Start Date",
+        endDate: "End Date",
         description: "Description",
         sortBy: "Sort by",
         filterByTags: "Filter by tags",
@@ -48,6 +51,12 @@ const translations = {
         selectedEvent_other: "{{count}} Events",
         accountSlashEvent: "Account / Event",
         showEvents: "Show Events",
+    },
+    frequency: {
+        yearly: "Yearly",
+        monthly: "Monthly",
+        weekly: "Weekly",
+        daily: "Daily",
     },
     navbar: {
         transactions: "Transactions",

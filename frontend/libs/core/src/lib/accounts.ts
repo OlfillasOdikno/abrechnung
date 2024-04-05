@@ -6,8 +6,9 @@ import {
     Transaction,
     TransactionBalanceEffect,
 } from "@abrechnung/types";
-import { fromISOString } from "@abrechnung/utils";
+import { fromISOString, toISODateString } from "@abrechnung/utils";
 import { computeTransactionBalanceEffect } from "./transactions";
+import { rrulestr } from "rrule";
 
 export type AccountSortMode = "last_changed" | "name" | "description" | "dateInfo";
 
@@ -199,20 +200,41 @@ export const computeAccountBalanceHistory = (
     if (transactions.length === 0) {
         return [];
     }
-
+    const now = new Date();
     const balanceChanges: Omit<BalanceHistoryEntry, "balance">[] = [];
     for (const transaction of transactions) {
         const balanceEffect = transactionBalanceEffects[transaction.id];
         const a = balanceEffect[accountId];
         if (a) {
-            balanceChanges.push({
-                date: transaction.billed_at,
-                change: a.total,
-                changeOrigin: {
-                    type: "transaction",
-                    id: transaction.id,
-                },
-            });
+            if (transaction.repeat !== "") {
+                const rule = rrulestr(transaction.repeat, {
+                    dtstart: fromISOString(transaction.billed_at),
+                });
+                rule.options.until =
+                    rule.options.until != null && rule.options.until.getTime() < now.getTime()
+                        ? rule.options.until
+                        : now;
+                const all = rule.all();
+                all.forEach((n) => {
+                    balanceChanges.push({
+                        date: toISODateString(n),
+                        change: a.total,
+                        changeOrigin: {
+                            type: "transaction",
+                            id: transaction.id,
+                        },
+                    });
+                });
+            } else {
+                balanceChanges.push({
+                    date: transaction.billed_at,
+                    change: a.total,
+                    changeOrigin: {
+                        type: "transaction",
+                        id: transaction.id,
+                    },
+                });
+            }
         }
     }
 

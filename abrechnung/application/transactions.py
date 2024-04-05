@@ -467,7 +467,7 @@ class TransactionService(Service):
         await conn.execute(
             "insert into transaction_history (id, revision_id, currency_symbol, currency_conversion_rate, "
             "   value, billed_at, name, description, repeat)"
-            "values ($1, $2, $3, $4, $5, $6, $7, $8) "
+            "values ($1, $2, $3, $4, $5, $6, $7, $8, $9) "
             "on conflict (id, revision_id) do update "
             "set currency_symbol = $3, currency_conversion_rate = $4, value = $5, "
             "   billed_at = $6, name = $7, description = $8, repeat = $9",
