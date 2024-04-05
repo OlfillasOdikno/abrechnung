@@ -23,6 +23,10 @@ def random_date() -> date:
     return (datetime.now() + timedelta(days=random.randint(-50, 50))).date()
 
 
+def random_rrule() -> str:
+    return random.choice(["", "FREQ=DAILY;INTERVAL=10;COUNT=5", "FREQ=WEEKLY;INTERVAL=3;COUNT=100"])
+
+
 async def main(
     config_path: str,
     group_name: str,
@@ -125,6 +129,7 @@ async def main(
                 name=f"Purchase {i}",
                 description="",
                 billed_at=random_date(),
+                repeat=random_rrule(),
                 currency_symbol="€",
                 currency_conversion_rate=1.0,
                 tags=[],
@@ -150,6 +155,7 @@ async def main(
                 name=f"Transfer {i}",
                 description="",
                 billed_at=random_date(),
+                repeat=random_rrule(),
                 currency_symbol="€",
                 currency_conversion_rate=1.0,
                 tags=[],

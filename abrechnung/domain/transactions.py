@@ -65,6 +65,7 @@ class NewTransaction(BaseModel):
     currency_symbol: str
     currency_conversion_rate: float
     billed_at: date
+    repeat: str
     tags: list[str] = []
 
     creditor_shares: TransactionShares
@@ -101,6 +102,7 @@ class Transaction(BaseModel):
     currency_symbol: str
     currency_conversion_rate: float
     billed_at: date
+    repeat: str
     tags: list[str]
     deleted: bool
 
